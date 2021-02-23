@@ -11,6 +11,7 @@ use Auth0\SDK\Exception\CoreException;
 use Auth0\SDK\Exception\ApiException;
 use Auth0\SDK\Exception\InvalidTokenException;
 use Auth0\SDK\Helpers\Cache\NoCacheHandler;
+use Auth0\SDK\Helpers\DummyTransientStoreHandler;
 use Auth0\SDK\Helpers\JWKFetcher;
 use Auth0\SDK\Helpers\PKCE;
 use Auth0\SDK\Helpers\Tokens\IdTokenVerifier;
@@ -323,16 +324,23 @@ class Auth0
             $this->store = new SessionStore();
         }
 
-        $transientStore = $config['transient_store'] ?? null;
-        if (! $transientStore instanceof StoreInterface) {
-            $transientStore = new CookieStore([
-                // Use configuration option or class default.
-                'legacy_samesite_none' => $config['legacy_samesite_none_cookie'] ?? null,
-                'samesite' => 'form_post' === $this->responseMode ? 'None' : 'Lax',
-            ]);
+        if ($config['disable_state_validation'])
+        {
+            $this->transientHandler = new DummyTransientStoreHandler( new EmptyStore() );
         }
+        else
+        {
+            $transientStore = $config['transient_store'] ?? null;
+            if (! $transientStore instanceof StoreInterface) {
+                $transientStore = new CookieStore([
+                    // Use configuration option or class default.
+                    'legacy_samesite_none' => $config['legacy_samesite_none_cookie'] ?? null,
+                    'samesite' => 'form_post' === $this->responseMode ? 'None' : 'Lax',
+                ]);
+            }
 
-        $this->transientHandler = new TransientStoreHandler( $transientStore );
+            $this->transientHandler = new TransientStoreHandler( $transientStore );
+        }
 
         $this->cacheHandler = $config['cache_handler'] ?? null;
         if (! $this->cacheHandler instanceof CacheInterface) {
