@@ -542,7 +542,7 @@ class Auth0
         }
 
         $state = $this->getState();
-        if (! $state || ! $this->transientHandler->verify(self::TRANSIENT_STATE_KEY, $state)) {
+        if (! $this->transientHandler->verify(self::TRANSIENT_STATE_KEY, $state)) {
             throw new CoreException('Invalid state');
         }
 
