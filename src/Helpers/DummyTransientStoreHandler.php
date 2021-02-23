@@ -82,11 +82,11 @@ class DummyTransientStoreHandler
      * Get a value once and check that it matches an existing value.
      *
      * @param string $key      Key to get once.
-     * @param string $expected Value expected.
+     * @param string|null $expected Value expected.
      *
      * @return boolean
      */
-    public function verify(string $key, string $expected) : bool
+    public function verify(string $key, ?string $expected = null) : bool
     {
         return true;
     }
